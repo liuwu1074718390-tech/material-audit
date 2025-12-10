@@ -6,6 +6,7 @@
   NODE_VERSION = "20.19.0"
   NPM_FLAGS = "--legacy-peer-deps"
   NODE_OPTIONS = "--no-warnings"
+  NUXT_TELEMETRY_DISABLED = "1"
 
 # Nuxt 3 在 Netlify 上的配置
 # Nitro 会自动生成 Netlify Functions

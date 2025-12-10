@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "nuxt dev",
-    "build": "NODE_OPTIONS='--no-warnings' nuxt build",
+    "build": "NODE_OPTIONS='--no-warnings' NUXT_TELEMETRY_DISABLED=1 nuxt build",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "NODE_ENV=production nuxt prepare || echo 'nuxt prepare failed, continuing...'"

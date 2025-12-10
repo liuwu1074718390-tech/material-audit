@@ -44,8 +44,8 @@ export default defineNuxtConfig({
 
   elementPlus: {
     /** Options */
-  },
-
-  compatibilityDate: '2024-12-09'
+  }
+  
+  // 移除 compatibilityDate，使用默认兼容性模式
 })
 
