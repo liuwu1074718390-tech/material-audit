@@ -1,5 +1,5 @@
 [build]
-  command = "npm ci --legacy-peer-deps && npm run build"
+  command = "npm ci --legacy-peer-deps && NODE_OPTIONS='--no-warnings' NUXT_TELEMETRY_DISABLED=1 npm run build"
   publish = ".output/public"
 
 [build.environment]
