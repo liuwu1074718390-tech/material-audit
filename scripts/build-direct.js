@@ -40,8 +40,9 @@ try {
   console.log('✅ Nuxt instance loaded successfully')
   console.log('🔨 Starting build...')
   
-  // 使用 Nuxt 实例的 build 方法
-  await nuxt.build()
+  // 使用 Nitro 的 build 方法（通过 nuxt.nitro）
+  const { build } = await import('nitropack')
+  await build(nuxt.nitro)
   
   console.log('✅ Build completed successfully!')
   process.exit(0)
