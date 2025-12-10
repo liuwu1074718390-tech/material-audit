@@ -2,6 +2,11 @@
 export default defineNuxtConfig({
   devtools: { enabled: false }, // 完全禁用 devtools，避免 Netlify 构建时的 vite 依赖问题
   
+  // 禁用版本横幅，避免 getBuilder 错误
+  experimental: {
+    watcher: false
+  },
+  
   modules: [
     '@element-plus/nuxt'
   ],

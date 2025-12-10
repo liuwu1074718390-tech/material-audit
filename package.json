@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "nuxt dev",
-    "build": "nuxt build",
+    "build": "NODE_OPTIONS='--no-warnings' nuxt build",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare || echo 'nuxt prepare failed, continuing...'"
+    "postinstall": "NODE_ENV=production nuxt prepare || echo 'nuxt prepare failed, continuing...'"
   },
   "dependencies": {
     "@element-plus/nuxt": "^1.0.7",
