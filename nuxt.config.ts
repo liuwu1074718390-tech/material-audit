@@ -1,11 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  devtools: { enabled: false }, // 完全禁用 devtools，避免 Netlify 构建时的 vite 依赖问题
-  
-  // 禁用版本横幅，避免 getBuilder 错误
-  experimental: {
-    watcher: false
-  },
+  devtools: { enabled: false },
   
   modules: [
     '@element-plus/nuxt'
@@ -35,17 +30,45 @@ export default defineNuxtConfig({
   },
 
   nitro: {
+    // 多平台部署配置
+    // - Vercel: 自动检测，无需 preset
+    // - Netlify: 需要 preset: 'netlify'（在 Netlify 部署时会自动设置）
+    // 可以通过环境变量控制：NETLIFY=1 时使用 netlify preset
+    preset: process.env.NETLIFY ? 'netlify' : undefined,
     // 服务端路由配置
     routeRules: {
-      '/api/**': { cors: true }
+      // API 路由允许 CORS
+      '/api/**': { 
+        cors: true,
+        headers: { 'cache-control': 'no-store' }
+      },
+      // 静态资源缓存策略
+      '/_nuxt/**': { 
+        headers: { 'cache-control': 'public, max-age=31536000, immutable' } 
+      }
     }
-    // 不设置 preset，让 Netlify 自动处理
+  },
+  
+  vite: {
+    resolve: {
+      // 使用 ESM 版本的 dayjs，避免浏览器原生 ESM 导致的 default 导出报错
+      alias: {
+        dayjs: 'dayjs/esm/index.js'
+      }
+    },
+    optimizeDeps: {
+      include: ['dayjs/esm']
+    },
+    ssr: {
+      // 确保 xlsx 在服务器端也被正确处理（虽然不会用到）
+      noExternal: ['xlsx', 'dayjs']
+    }
   },
 
   elementPlus: {
     /** Options */
-  }
-  
-  // 移除 compatibilityDate，使用默认兼容性模式
+  },
+
+  compatibilityDate: '2024-12-09'
 })
 

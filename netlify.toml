@@ -9,6 +9,7 @@
   CI = "false"
   NODE_OPTIONS = "--no-warnings"
   NUXT_TELEMETRY_DISABLED = "1"
+  NUXT_NO_VERSION_CHECK = "1"
 
 # Nuxt 3 在 Netlify 上的配置
 # Nitro 会自动生成 Netlify Functions
