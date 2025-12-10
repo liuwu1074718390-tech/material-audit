@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "nuxt dev",
-    "build": "nuxt build",
+    "build": "node scripts/build.js",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "NODE_ENV=production nuxt prepare || true"
@@ -16,13 +16,12 @@
     "axios": "^1.6.5",
     "element-plus": "^2.5.3",
     "mysql2": "^3.15.3",
-    "nuxt": "^3.13.0",
+    "nuxt": "3.9.4",
     "vue": "^3.4.15",
     "vue-router": "^4.2.5",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@nuxt/devtools": "^1.0.8",
     "@types/node": "^20.11.5",
     "sass": "^1.70.0"
   },
