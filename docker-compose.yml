@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # 材价审计应用
+  app:
+    build: .
+    container_name: material-audit-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DIFY_API_KEY=${DIFY_API_KEY}
+      - DIFY_API_URL=${DIFY_API_URL}
+      - TENCENT_SECRET_ID=${TENCENT_SECRET_ID}
+      - TENCENT_SECRET_KEY=${TENCENT_SECRET_KEY}
+    restart: unless-stopped
+    networks:
+      - material-audit-network
+    depends_on:
+      - redis
+    volumes:
+      - ./logs:/app/logs
+
+  # Redis缓存（可选）
+  redis:
+    image: redis:7-alpine
+    container_name: material-audit-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - material-audit-network
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+
+  # MySQL数据库（可选）
+  # mysql:
+  #   image: mysql:8
+  #   container_name: material-audit-mysql
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+  #     - MYSQL_DATABASE=material_audit
+  #   restart: unless-stopped
+  #   networks:
+  #     - material-audit-network
+  #   volumes:
+  #     - mysql-data:/var/lib/mysql
+
+networks:
+  material-audit-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  # mysql-data:
+
