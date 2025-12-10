@@ -1,10 +1,12 @@
 [build]
-  command = "NODE_OPTIONS='--no-warnings' NUXT_TELEMETRY_DISABLED=1 npx nuxi build"
+  command = "npm ci --legacy-peer-deps && npm run build"
   publish = ".output/public"
 
 [build.environment]
   NODE_VERSION = "20.19.0"
   NPM_FLAGS = "--legacy-peer-deps"
+  NETLIFY = "1"
+  CI = "false"
   NODE_OPTIONS = "--no-warnings"
   NUXT_TELEMETRY_DISABLED = "1"
 
