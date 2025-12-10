@@ -30,8 +30,8 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    // Netlify 适配器配置 - 通过环境变量自动检测
-    // preset: 'netlify', // 暂时注释，让 Netlify 自动检测
+    // Netlify 适配器配置
+    preset: process.env.NITRO_PRESET || 'netlify',
     // 服务端路由配置
     routeRules: {
       '/api/**': { cors: true }
