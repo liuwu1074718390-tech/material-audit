@@ -30,12 +30,11 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    // Netlify 适配器配置
-    preset: process.env.NITRO_PRESET || 'netlify',
     // 服务端路由配置
     routeRules: {
       '/api/**': { cors: true }
     }
+    // 注意：不设置 preset，让 Netlify 自动检测或使用默认模式
   },
 
   elementPlus: {
