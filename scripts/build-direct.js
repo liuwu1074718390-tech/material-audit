@@ -23,8 +23,7 @@ console.log('🚀 Starting direct Nitro build (bypassing Nuxt CLI)...')
 try {
   // 动态导入模块
   console.log('📦 Loading modules...')
-  const { build } = await import('nitropack')
-  const { loadNuxt, buildNuxt } = await import('nuxt')
+  const { loadNuxt } = await import('nuxt')
   
   // 加载 Nuxt 实例（这会加载配置）
   console.log('📦 Loading Nuxt instance...')
@@ -41,8 +40,8 @@ try {
   console.log('✅ Nuxt instance loaded successfully')
   console.log('🔨 Starting build...')
   
-  // 使用 Nuxt 的 build 方法（这会调用 Nitro，但绕过 CLI）
-  await buildNuxt(nuxt)
+  // 使用 Nuxt 实例的 build 方法
+  await nuxt.build()
   
   console.log('✅ Build completed successfully!')
   process.exit(0)
