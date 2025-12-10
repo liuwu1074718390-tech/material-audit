@@ -24,17 +24,25 @@ try {
   // 动态导入模块
   console.log('📦 Loading modules...')
   const { build } = await import('nitropack')
-  const { loadNuxtConfig } = await import('@nuxt/config')
+  const { loadNuxt, buildNuxt } = await import('nuxt')
   
-  // 加载 Nuxt 配置
-  console.log('📦 Loading Nuxt configuration...')
-  const config = await loadNuxtConfig({ rootDir })
+  // 加载 Nuxt 实例（这会加载配置）
+  console.log('📦 Loading Nuxt instance...')
+  const nuxt = await loadNuxt({
+    rootDir,
+    dev: false,
+    overrides: {
+      nitro: {
+        ...(process.env.NETLIFY ? { preset: 'netlify' } : {})
+      }
+    }
+  })
   
-  console.log('✅ Configuration loaded successfully')
-  console.log('🔨 Starting Nitro build...')
+  console.log('✅ Nuxt instance loaded successfully')
+  console.log('🔨 Starting build...')
   
-  // 直接使用 Nitro 构建
-  await build(config.nitro || {})
+  // 使用 Nuxt 的 build 方法（这会调用 Nitro，但绕过 CLI）
+  await buildNuxt(nuxt)
   
   console.log('✅ Build completed successfully!')
   process.exit(0)
