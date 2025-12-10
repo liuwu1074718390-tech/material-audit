@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  devtools: { enabled: process.env.NODE_ENV === 'development' },
+  devtools: { enabled: false }, // 完全禁用 devtools，避免 Netlify 构建时的 vite 依赖问题
   
   modules: [
     '@element-plus/nuxt'
