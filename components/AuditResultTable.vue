@@ -53,11 +53,11 @@
 
     <!-- 数据表格 -->
     <div class="table-container">
-      <el-table
-        :data="paginatedData"
-        style="width: 100%"
-        border
-        stripe
+    <el-table
+      :data="paginatedData"
+      style="width: 100%"
+      border
+      stripe
       class="audit-table"
     >
       <el-table-column label="序号" width="80" align="center" fixed="left">
@@ -219,8 +219,8 @@ const filteredData = computed(() => {
       return absB - absA // 从高到低
     } else {
       return absA - absB // 从低到高
-    }
-  })
+      }
+    })
 
   return result
 })

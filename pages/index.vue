@@ -236,7 +236,7 @@ const handleUploadSuccess = (result: any) => {
   
   // 延迟刷新完整列表，确保服务器已创建任务
   setTimeout(() => {
-    fetchTasks()
+  fetchTasks()
   }, 1000)
 }
 

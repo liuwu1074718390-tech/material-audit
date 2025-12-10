@@ -464,7 +464,7 @@ async function processGroup(
         if (id && usedIds.has(id)) {
           log(`[processGroup] ⚠️ 警告: ID ${id} 已使用，生成新ID`)
           id = ''
-        }
+      }
       
       if (!id) {
           // 如果找不到匹配的ID，使用索引生成唯一ID

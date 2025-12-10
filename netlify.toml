@@ -3,7 +3,7 @@
   publish = ".output/public"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20.19.0"
   NPM_FLAGS = "--legacy-peer-deps"
 
 # Nuxt 3 在 Netlify 上的配置
