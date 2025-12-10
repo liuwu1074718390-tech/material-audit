@@ -6,12 +6,9 @@
   NODE_VERSION = "18"
   NPM_FLAGS = "--legacy-peer-deps"
 
-# Nuxt 3 服务器端渲染支持
-# 注意：Netlify 需要特殊配置来支持 Nuxt 3 的 SSR
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/server"
-  status = 200
+# Nuxt 3 在 Netlify 上的配置
+# Nitro 会自动生成 Netlify Functions
+# 不需要手动配置重定向，Nitro 会处理
 
 # 静态资源缓存
 [[headers]]

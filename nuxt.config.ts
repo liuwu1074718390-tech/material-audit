@@ -30,6 +30,8 @@ export default defineNuxtConfig({
   },
 
   nitro: {
+    // Netlify 适配器配置
+    preset: 'netlify',
     // 服务端路由配置
     routeRules: {
       '/api/**': { cors: true }

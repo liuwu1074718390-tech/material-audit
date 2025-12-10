@@ -66,9 +66,11 @@ npm run build
 
 ### 3.2 Nuxt 3 特殊配置
 
-由于这是 Nuxt 3 项目，需要创建 `netlify.toml` 配置文件：
+由于这是 Nuxt 3 项目，需要特殊配置：
 
-在项目根目录创建 `netlify.toml` 文件：
+#### ✅ 已包含的配置
+
+项目已包含 `netlify.toml` 配置文件，包含以下配置：
 
 ```toml
 [build]
@@ -77,15 +79,23 @@ npm run build
 
 [build.environment]
   NODE_VERSION = "18"
-
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/server"
-  status = 200
-
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
+  NPM_FLAGS = "--legacy-peer-deps"
 ```
+
+#### ⚙️ Nuxt 配置
+
+`nuxt.config.ts` 中已配置 Netlify preset：
+
+```typescript
+nitro: {
+  preset: 'netlify',  // 自动生成 Netlify Functions
+  routeRules: {
+    '/api/**': { cors: true }
+  }
+}
+```
+
+**重要**：Nitro 会自动处理 Netlify Functions，不需要手动配置重定向规则。
 
 ### 3.3 高级构建设置（可选）
 
@@ -264,7 +274,42 @@ Netlify 对文件上传有限制：
 
 ## 🔧 故障排查
 
-### 问题1：构建失败
+### 问题1：Initializing 失败
+
+**症状**：部署日志显示 "Initializing failed" 或初始化阶段失败
+
+**可能原因和解决方案**：
+
+#### 原因1：Node.js 版本不匹配
+**解决方案**：
+1. 在 Netlify 站点设置中，进入 **"Environment variables"**
+2. 添加环境变量：`NODE_VERSION = 18`
+3. 或者在 `netlify.toml` 中已配置（已包含）
+
+#### 原因2：Nuxt 3 适配器未配置
+**解决方案**：
+1. 确保 `nuxt.config.ts` 中包含 `nitro.preset = 'netlify'`（已修复）
+2. 重新提交代码并部署
+
+#### 原因3：依赖安装失败
+**解决方案**：
+1. 检查 `package.json` 中的依赖是否正确
+2. 在 Netlify 环境变量中添加：`NPM_FLAGS = "--legacy-peer-deps"`
+3. 清除构建缓存：在 Netlify 站点设置 → **"Build & deploy"** → **"Clear cache and retry deploy"**
+
+#### 原因4：构建命令错误
+**解决方案**：
+1. 确认构建命令为：`npm run build`
+2. 确认发布目录为：`.output/public`
+3. 检查 `netlify.toml` 配置是否正确
+
+#### 原因5：缺少必需文件
+**解决方案**：
+1. 确保 `netlify.toml` 文件在项目根目录
+2. 确保 `package.json` 存在且格式正确
+3. 确保 `.gitignore` 没有排除必需文件
+
+### 问题2：构建失败
 
 **症状**：部署时显示 "Build failed"
 
@@ -273,6 +318,7 @@ Netlify 对文件上传有限制：
 2. 检查 `package.json` 中的依赖是否正确
 3. 确保 Node.js 版本兼容（建议 18+）
 4. 检查环境变量是否配置完整
+5. 尝试本地构建测试：`npm run build`
 
 ### 问题2：页面显示 404
 
