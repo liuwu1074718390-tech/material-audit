@@ -1,5 +1,5 @@
 [build]
-  command = "CI='' npm run build"
+  command = "NODE_OPTIONS='--no-warnings' NUXT_TELEMETRY_DISABLED=1 npx nuxi build"
   publish = ".output/public"
 
 [build.environment]
