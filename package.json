@@ -8,7 +8,7 @@
     "build": "nuxt build",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "NODE_ENV=production nuxt prepare || true"
   },
   "dependencies": {
     "@element-plus/nuxt": "^1.0.7",
