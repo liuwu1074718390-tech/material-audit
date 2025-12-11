@@ -5,7 +5,16 @@
 </template>
 
 <script setup lang="ts">
-import zhCn from 'element-plus/es/locale/lang/zh-cn'
+// 动态导入语言包，避免 SSR 问题
+let zhCn: any = null
+if (process.client) {
+  import('element-plus/es/locale/lang/zh-cn').then(module => {
+    zhCn = module.default
+  })
+} else {
+  // 服务端使用默认配置
+  zhCn = {}
+}
 
 // 全局配置
 useHead({
@@ -18,6 +27,6 @@ useHead({
 })
 
 // 配置Element Plus使用中文
-const locale = zhCn
+const locale = zhCn || {}
 </script>
 
