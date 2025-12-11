@@ -16,8 +16,12 @@ const rootDir = join(__dirname, '..')
 
 // 设置环境变量
 // 保留用户设置的 NODE_OPTIONS（如 --max-old-space-size=4096）
+// 如果没有设置，使用更大的内存限制（8192MB）以避免内存不足
 if (!process.env.NODE_OPTIONS) {
-  process.env.NODE_OPTIONS = '--no-warnings'
+  process.env.NODE_OPTIONS = '--max-old-space-size=8192 --no-warnings'
+} else if (!process.env.NODE_OPTIONS.includes('max-old-space-size')) {
+  // 如果设置了 NODE_OPTIONS 但没有内存限制，添加默认值
+  process.env.NODE_OPTIONS = process.env.NODE_OPTIONS + ' --max-old-space-size=8192'
 }
 process.env.NUXT_TELEMETRY_DISABLED = '1'
 process.env.NUXT_NO_VERSION_CHECK = '1'  // 禁用版本检查，可能有助于绕过 banner

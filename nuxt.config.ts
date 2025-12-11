@@ -63,6 +63,15 @@ export default defineNuxtConfig({
     ssr: {
       // 确保 xlsx 在服务器端也被正确处理（虽然不会用到）
       noExternal: ['xlsx', 'dayjs', 'element-plus']
+    },
+    build: {
+      // 减少内存使用
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        output: {
+          manualChunks: undefined // 让 Vite 自动处理代码分割
+        }
+      }
     }
   }
 })

@@ -13,12 +13,22 @@ const __dirname = dirname(__filename)
 const rootDir = join(__dirname, '..')
 
 // 设置环境变量
+// 确保有足够的内存限制
+if (!process.env.NODE_OPTIONS) {
+  process.env.NODE_OPTIONS = '--max-old-space-size=8192 --no-warnings'
+} else if (!process.env.NODE_OPTIONS.includes('max-old-space-size')) {
+  // 如果设置了 NODE_OPTIONS 但没有内存限制，添加默认值
+  process.env.NODE_OPTIONS = process.env.NODE_OPTIONS + ' --max-old-space-size=8192'
+}
+
 process.env.NUXT_TELEMETRY_DISABLED = '1'
 process.env.NUXT_NO_VERSION_CHECK = '1'
 process.env.NODE_ENV = 'production'
 if (process.env.NETLIFY !== '0') {
   process.env.NETLIFY = process.env.NETLIFY || '1'
 }
+
+console.log('🔧 NODE_OPTIONS:', process.env.NODE_OPTIONS)
 
 const outputDir = join(rootDir, '.output', 'public')
 const serverDir = join(rootDir, '.output', 'server')
