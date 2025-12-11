@@ -147,7 +147,14 @@
 
 <script setup lang="ts">
 import type { AuditResultData, FilterConditions } from '~/types'
-import * as XLSX from 'xlsx'
+// 动态导入 xlsx，避免服务器端打包问题
+let XLSX: any = null
+const getXLSX = async () => {
+  if (!XLSX && process.client) {
+    XLSX = await import('xlsx')
+  }
+  return XLSX
+}
 import { SortUp, SortDown } from '@element-plus/icons-vue'
 
 const props = defineProps<{
@@ -283,7 +290,7 @@ const toggleSortOrder = () => {
 }
 
 // 导出Excel
-const handleExport = () => {
+const handleExport = async () => {
   try {
     // 准备导出数据
     const exportData = filteredData.value.map(row => ({
@@ -301,16 +308,22 @@ const handleExport = () => {
       '价格偏差': row.价格偏差
     }))
 
+    // 动态加载 xlsx
+    const xlsxLib = await getXLSX()
+    if (!xlsxLib) {
+      throw new Error('Failed to load xlsx library')
+    }
+
     // 创建工作表
-    const ws = XLSX.utils.json_to_sheet(exportData)
+    const ws = xlsxLib.utils.json_to_sheet(exportData)
     
     // 创建工作簿
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, '审计结果')
+    const wb = xlsxLib.utils.book_new()
+    xlsxLib.utils.book_append_sheet(wb, ws, '审计结果')
 
     // 导出文件
     const fileName = `材价审计结果_${new Date().getTime()}.xlsx`
-    XLSX.writeFile(wb, fileName)
+    xlsxLib.writeFile(wb, fileName)
 
     ElMessage.success('导出成功！')
     emit('export', filteredData.value)

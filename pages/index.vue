@@ -81,6 +81,7 @@
       width="90%"
       class="result-dialog"
       align-center
+      v-loading="resultLoading"
     >
       <div v-if="selectedResults.length === 0" style="text-align: center; color: #909399; padding: 20px;">
         <p>暂无结果数据</p>
@@ -109,6 +110,7 @@ const loading = ref(false)
 const resultDialogVisible = ref(false)
 const selectedResults = ref<AuditResultData[]>([])
 const selectedTaskName = ref('')
+const resultLoading = ref(false)
 const pollingInterval = ref<any>(null)
 const taskPollingIntervals = ref<Map<string, any>>(new Map()) // 每个任务的独立轮询定时器
 
@@ -243,6 +245,9 @@ const handleUploadSuccess = (result: any) => {
 const handleView = async (task: any) => {
   try {
     console.log('[Frontend] 查看任务结果:', task.taskId)
+    // 先展示弹窗，避免等待接口时的空白
+    resultDialogVisible.value = true
+    resultLoading.value = true
     // 使用 $fetch 而不是 useFetch，避免组件已挂载的警告
     const info = await $fetch(`/api/dify/task/${task.taskId}`) as any
     console.log('[Frontend] 收到任务数据:', {
@@ -264,6 +269,8 @@ const handleView = async (task: any) => {
   } catch (err: any) {
     console.error('[Frontend] 查看结果失败:', err)
     ElMessage.error('查看结果失败: ' + (err.message || '未知错误'))
+  } finally {
+    resultLoading.value = false
   }
 }
 

@@ -7,7 +7,8 @@ export default defineNuxtConfig({
   ],
 
   css: [
-    '~/assets/styles/main.scss'
+    '~/assets/styles/main.scss',
+    'element-plus/dist/index.css'
   ],
 
   runtimeConfig: {
@@ -61,12 +62,8 @@ export default defineNuxtConfig({
     },
     ssr: {
       // 确保 xlsx 在服务器端也被正确处理（虽然不会用到）
-      noExternal: ['xlsx', 'dayjs']
+      noExternal: ['xlsx', 'dayjs', 'element-plus']
     }
-  },
-
-  elementPlus: {
-    /** Options */
   },
 
   compatibilityDate: '2025-12-10'

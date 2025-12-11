@@ -126,7 +126,14 @@ import { computed, watch } from 'vue'
 import { UploadFilled } from '@element-plus/icons-vue'
 import type { UploadProps, UploadUserFile, UploadInstance } from 'element-plus'
 import type { ExcelRowData, AuditFormData, AuditResultData } from '~/types'
-import * as XLSX from 'xlsx'
+// 动态导入 xlsx，避免服务器端打包问题
+let XLSX: any = null
+const getXLSX = async () => {
+  if (!XLSX && process.client) {
+    XLSX = await import('xlsx')
+  }
+  return XLSX
+}
 
 const props = defineProps<{
   modelValue: boolean
@@ -397,25 +404,36 @@ const handleFileChange: UploadProps['onChange'] = (file) => {
 
 // 解析Excel文件
 const parseExcelFile = (file: File): Promise<ExcelRowData[]> => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
+    if (!process.client) {
+      reject(new Error('Excel parsing is only available on client side'))
+      return
+    }
+    
+    const xlsxLib = await getXLSX()
+    if (!xlsxLib) {
+      reject(new Error('Failed to load xlsx library'))
+      return
+    }
+    
     const reader = new FileReader()
     
     reader.onload = (e) => {
       try {
         const data = e.target?.result
-        const workbook = XLSX.read(data, { type: 'binary' })
+        const workbook = xlsxLib.read(data, { type: 'binary' })
         const firstSheetName = workbook.SheetNames[0]
         const worksheet = workbook.Sheets[firstSheetName]
         
         // 获取表格范围
-        const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1')
+        const range = xlsxLib.utils.decode_range(worksheet['!ref'] || 'A1')
         const mappedData: ExcelRowData[] = []
         
         // 从第2行开始读取（第1行是表头，索引从0开始，所以从1开始）
         for (let rowNum = range.s.r + 1; rowNum <= range.e.r; rowNum++) {
           // 按列位置读取单元格（A=0, B=1, C=2...）
           const getCellValue = (col: number) => {
-            const cellAddress = XLSX.utils.encode_cell({ r: rowNum, c: col })
+              const cellAddress = xlsxLib.utils.encode_cell({ r: rowNum, c: col })
             const cell = worksheet[cellAddress]
             return cell ? (cell.v !== undefined ? String(cell.v).trim() : '') : ''
           }

@@ -1,0 +1,71 @@
+# Cloud Studio 配置文件
+
+# 项目信息
+name: material-price-audit
+description: 材价审计管理系统
+
+# 运行时环境
+runtime:
+  node: "20.19.0"
+
+# 构建配置
+build:
+  # 安装依赖
+  install: npm install
+  
+  # 构建命令
+  build: npm run build
+  
+  # 输出目录
+  output: .output
+
+# 启动配置
+start:
+  # 启动命令
+  command: npm run preview
+  
+  # 监听端口
+  port: 3000
+  
+  # 健康检查
+  healthCheck:
+    path: /
+    timeout: 30
+
+# 环境变量（敏感信息请在部署界面配置）
+env:
+  NODE_ENV: production
+  NUXT_PUBLIC_API_BASE: /api
+
+# 静态文件目录
+static:
+  - public
+
+# 忽略文件
+ignore:
+  - node_modules
+  - .nuxt
+  - .output
+  - dist
+  - .git
+  - "*.log"
+  - .env
+  - .env.*
+  - "*.md"
+  - docs
+  - scripts
+  - 上传材料
+
+# 资源配置
+resources:
+  # CPU 核心数
+  cpu: 1
+  
+  # 内存（MB）
+  memory: 512
+
+# 持久化存储（可选）
+volumes:
+  # 上传文件目录
+  - path: /tmp/uploads
+    size: 1GB

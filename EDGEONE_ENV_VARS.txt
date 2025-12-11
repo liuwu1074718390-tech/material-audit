@@ -1,0 +1,36 @@
+# EdgeOne 环境变量配置
+# 复制以下内容到 EdgeOne 环境变量配置中
+
+# ==========================================
+# Dify API 配置（必需）
+# ==========================================
+DIFY_API_KEY=app-CaJJxI5P0DrvwNXAhABB37M6
+DIFY_API_URL=http://192.168.1.42/v1/workflows/run
+DIFY_WORKFLOW_ID=6495412f-cb02-4702-a1e4-5471a37919c7
+
+# ==========================================
+# 数据库配置（必需）
+# ==========================================
+DB_HOST=gz-cdb-gaxrunxl.sql.tencentcdb.com
+DB_PORT=28544
+DB_USER=root
+DB_PASSWORD=Lw05044918
+DB_NAME=myapp
+
+# ==========================================
+# 腾讯云配置（可选）
+# ==========================================
+TENCENT_SECRET_ID=your-tencent-secret-id
+TENCENT_SECRET_KEY=your-tencent-secret-key
+TENCENT_REGION=ap-guangzhou
+
+# ==========================================
+# COS 配置（可选）
+# ==========================================
+COS_BUCKET=my-audit-bucket-1256824609
+COS_REGION=ap-guangzhou
+COS_BASE_URL=https://my-audit-bucket-1256824609.cos.ap-guangzhou.myqcloud.com
+
+
+
+

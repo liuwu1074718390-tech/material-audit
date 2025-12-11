@@ -1,0 +1,22 @@
+# Apache 服务器配置（如果 EdgeOne 使用 Apache）
+# Nuxt 3 SPA Fallback 配置
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  
+  # API 路由保持原样（由服务器处理）
+  RewriteRule ^api/ - [L]
+  
+  # 静态资源保持原样
+  RewriteRule ^_nuxt/ - [L]
+  RewriteRule ^assets/ - [L]
+  
+  # 如果文件或目录不存在，重定向到 index.html（SPA fallback）
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+
+
+
