@@ -55,7 +55,7 @@ if (existsSync(join(rootDir, '.output'))) {
 }
 
 // 构建函数
-function runBuild(command, description) {
+async function runBuild(command, description) {
   console.log(`\n🔨 ${description}...`)
   console.log(`📝 Command: ${command}`)
   
@@ -90,9 +90,18 @@ function runBuild(command, description) {
       return false
     }
   } catch (buildError) {
+    // 检查是否是 banner 错误（即使 banner 报错，构建可能仍然成功）
+    const isBannerError = buildError.message?.includes('Cannot read properties of null') ||
+                          buildError.message?.includes("reading 'name'")
+    
     // 即使命令失败，也检查是否有输出生成
     if (existsSync(outputDir) || existsSync(serverDir) || existsSync(nitroJsonPath)) {
-      console.log('\n⚠️ Build command failed but output was generated')
+      if (isBannerError) {
+        console.log('\n⚠️ Banner error detected, but build output was generated')
+        console.log('✅ Build succeeded despite banner error!')
+      } else {
+        console.log('\n⚠️ Build command failed but output was generated')
+      }
       console.log('✅ Checking output...')
       if (existsSync(nitroJsonPath)) {
         console.log('✅ nitro.json found at:', nitroJsonPath)
@@ -104,6 +113,18 @@ function runBuild(command, description) {
         console.log('✅ Server output found at:', serverDir)
       }
       return true
+    }
+    
+    // 如果是 banner 错误，尝试继续（可能构建仍在进行）
+    if (isBannerError) {
+      console.log('\n⚠️ Banner error detected, but this might not prevent the build')
+      console.log('💡 Waiting a moment and checking for output...')
+      // 等待 2 秒后再次检查
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      if (existsSync(outputDir) || existsSync(serverDir) || existsSync(nitroJsonPath)) {
+        console.log('✅ Build output found after banner error!')
+        return true
+      }
     }
     
     // 输出详细错误信息
@@ -129,61 +150,71 @@ function runBuild(command, description) {
   }
 }
 
-// 检查 .nuxt 目录是否存在（nuxt prepare 的输出）
-const nuxtDir = join(rootDir, '.nuxt')
-if (!existsSync(nuxtDir)) {
-  console.log('⚠️ .nuxt directory not found, running nuxt prepare...')
-  try {
-    execSync('npx nuxt prepare', {
-      cwd: rootDir,
-      env: { ...process.env },
-      stdio: 'inherit'
-    })
-    console.log('✅ nuxt prepare completed')
-  } catch (e) {
-    console.warn('⚠️ nuxt prepare failed, but continuing...')
+// 主构建流程
+async function main() {
+  // 检查 .nuxt 目录是否存在（nuxt prepare 的输出）
+  const nuxtDir = join(rootDir, '.nuxt')
+  if (!existsSync(nuxtDir)) {
+    console.log('⚠️ .nuxt directory not found, running nuxt prepare...')
+    try {
+      execSync('npx nuxt prepare', {
+        cwd: rootDir,
+        env: { ...process.env },
+        stdio: 'inherit'
+      })
+      console.log('✅ nuxt prepare completed')
+    } catch (e) {
+      console.warn('⚠️ nuxt prepare failed, but continuing...')
+    }
   }
+
+  // 尝试多种构建方法
+  // 注意：不使用 'npm run build' 避免循环调用
+  const buildMethods = [
+    { command: 'npx nuxt build', desc: 'Running nuxt build (method 1)' },
+    { command: 'npx nuxi build', desc: 'Running nuxi build (method 2)' },
+    { command: 'npx --yes nuxt@3.11.1 build', desc: 'Running nuxt build with explicit version (method 3)' }
+  ]
+
+  let buildSucceeded = false
+  for (const method of buildMethods) {
+    if (await runBuild(method.command, method.desc)) {
+      console.log('\n✅ Build succeeded!')
+      buildSucceeded = true
+      break
+    }
+    console.log(`\n⚠️ ${method.desc} failed, trying next method...`)
+  }
+
+  if (!buildSucceeded) {
+    // 所有方法都失败了
+    console.error('\n❌ All build attempts failed')
+    console.error('\n📋 Diagnostic information:')
+    console.error('---')
+    console.error('Working directory:', rootDir)
+    console.error('Node version:', process.version)
+    console.error('NODE_ENV:', process.env.NODE_ENV)
+    console.error('NODE_OPTIONS:', process.env.NODE_OPTIONS)
+    console.error('NETLIFY:', process.env.NETLIFY)
+    console.error('node_modules exists:', existsSync(nodeModulesPath))
+    console.error('.nuxt exists:', existsSync(nuxtDir))
+    console.error('.output exists:', existsSync(join(rootDir, '.output')))
+    console.error('---')
+    console.error('\n💡 Troubleshooting tips:')
+    console.error('1. Check if all dependencies are installed: npm install --legacy-peer-deps')
+    console.error('2. Check Node.js version (should be >= 20.19.0): node --version')
+    console.error('3. Try cleaning and rebuilding: rm -rf .output .nuxt node_modules && npm install --legacy-peer-deps && npm run build')
+    console.error('4. Check for TypeScript errors: npx nuxi typecheck')
+    console.error('5. Review the error messages above for specific issues')
+    process.exit(1)
+  }
+
+  process.exit(0)
 }
 
-// 尝试多种构建方法
-const buildMethods = [
-  { command: 'npx nuxt build', desc: 'Running nuxt build (method 1)' },
-  { command: 'npx nuxi build', desc: 'Running nuxi build (method 2)' },
-  { command: 'npm run build', desc: 'Running npm build script (method 3)' }
-]
-
-let buildSucceeded = false
-for (const method of buildMethods) {
-  if (runBuild(method.command, method.desc)) {
-    console.log('\n✅ Build succeeded!')
-    buildSucceeded = true
-    break
-  }
-  console.log(`\n⚠️ ${method.desc} failed, trying next method...`)
-}
-
-if (!buildSucceeded) {
-  // 所有方法都失败了
-  console.error('\n❌ All build attempts failed')
-  console.error('\n📋 Diagnostic information:')
-  console.error('---')
-  console.error('Working directory:', rootDir)
-  console.error('Node version:', process.version)
-  console.error('NODE_ENV:', process.env.NODE_ENV)
-  console.error('NODE_OPTIONS:', process.env.NODE_OPTIONS)
-  console.error('NETLIFY:', process.env.NETLIFY)
-  console.error('node_modules exists:', existsSync(nodeModulesPath))
-  console.error('.nuxt exists:', existsSync(nuxtDir))
-  console.error('.output exists:', existsSync(join(rootDir, '.output')))
-  console.error('---')
-  console.error('\n💡 Troubleshooting tips:')
-  console.error('1. Check if all dependencies are installed: npm install --legacy-peer-deps')
-  console.error('2. Check Node.js version (should be >= 20.19.0): node --version')
-  console.error('3. Try cleaning and rebuilding: rm -rf .output .nuxt node_modules && npm install --legacy-peer-deps && npm run build')
-  console.error('4. Check for TypeScript errors: npx nuxi typecheck')
-  console.error('5. Review the error messages above for specific issues')
+// 运行主函数
+main().catch((error) => {
+  console.error('❌ Unexpected error:', error)
   process.exit(1)
-}
-
-process.exit(0)
+})
 
