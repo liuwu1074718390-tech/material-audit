@@ -5,16 +5,6 @@
 </template>
 
 <script setup lang="ts">
-// 只在客户端导入语言包，避免 SSR 问题
-const locale = ref({})
-
-onMounted(async () => {
-  if (process.client) {
-    const zhCnModule = await import('element-plus/es/locale/lang/zh-cn')
-    locale.value = zhCnModule.default
-  }
-})
-
 // 全局配置
 useHead({
   title: '材价审计系统',
@@ -24,5 +14,9 @@ useHead({
     { name: 'description', content: '材价审计管理系统' }
   ]
 })
+
+// Element Plus 语言配置 - 使用默认配置避免 SSR 问题
+// 如果需要中文，可以在组件中单独配置
+const locale = {}
 </script>
 
