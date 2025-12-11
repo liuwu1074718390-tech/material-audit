@@ -52,9 +52,10 @@ export default defineNuxtConfig({
   
   vite: {
     resolve: {
-      // 使用 ESM 版本的 dayjs，避免浏览器原生 ESM 导致的 default 导出报错
+      // 修复 dayjs 插件路径解析问题
       alias: {
-        dayjs: 'dayjs/esm/index.js'
+        // 保持 dayjs 的正常导入，让 Element Plus 可以找到插件
+        // dayjs: 'dayjs/esm/index.js'  // 注释掉，避免 Element Plus 找不到插件
       }
     },
     optimizeDeps: {
