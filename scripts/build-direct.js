@@ -20,6 +20,7 @@ if (!process.env.NODE_OPTIONS) {
   process.env.NODE_OPTIONS = '--no-warnings'
 }
 process.env.NUXT_TELEMETRY_DISABLED = '1'
+process.env.NUXT_NO_VERSION_CHECK = '1'  // 禁用版本检查，可能有助于绕过 banner
 process.env.NODE_ENV = 'production'
 // 如果设置了 NETLIFY 环境变量，则使用 netlify preset
 if (process.env.NETLIFY !== '0') {
@@ -188,19 +189,24 @@ async function main() {
     }
   }
 
-  // 尝试直接使用 Nitro API 构建（绕过 Nuxt CLI banner）
-  console.log('\n🔧 Attempting direct Nitro build (bypassing Nuxt CLI)...')
+  // 尝试直接使用 Nuxt Kit API 构建（绕过 Nuxt CLI banner）
+  console.log('\n🔧 Attempting direct Nuxt build using @nuxt/kit (bypassing CLI)...')
   try {
-    const { build } = await import('nitropack')
-    const { loadNuxtConfig } = await import('@nuxt/config')
+    // 使用 @nuxt/kit 来加载和构建
+    const { loadNuxt, buildNuxt } = await import('@nuxt/kit')
     
-    const config = await loadNuxtConfig({ rootDir })
-    console.log('✅ Config loaded, starting Nitro build...')
-    await build(config.nitro || {})
+    console.log('📦 Loading Nuxt configuration...')
+    const nuxt = await loadNuxt({
+      rootDir,
+      dev: false
+    })
+    
+    console.log('✅ Config loaded, starting Nuxt build...')
+    await buildNuxt(nuxt)
     
     // 检查输出
     if (existsSync(outputDir) || existsSync(serverDir) || existsSync(nitroJsonPath)) {
-      console.log('✅ Direct Nitro build succeeded!')
+      console.log('✅ Direct Nuxt build succeeded!')
       if (existsSync(nitroJsonPath)) {
         console.log('✅ nitro.json found at:', nitroJsonPath)
       }
@@ -212,10 +218,14 @@ async function main() {
       }
       process.exit(0)
     } else {
-      console.log('⚠️ Direct Nitro build completed but no output found')
+      console.log('⚠️ Direct Nuxt build completed but no output found')
     }
-  } catch (nitroError) {
-    console.log('⚠️ Direct Nitro build failed:', nitroError.message)
+  } catch (kitError) {
+    console.log('⚠️ Direct Nuxt build failed:', kitError.message)
+    if (kitError.stack) {
+      console.log('Stack (first 5 lines):')
+      console.log(kitError.stack.split('\n').slice(0, 5).join('\n'))
+    }
     console.log('💡 Falling back to CLI methods...')
   }
 
