@@ -2,6 +2,10 @@
 export default defineNuxtConfig({
   devtools: { enabled: false },
   
+  // 开发模式下禁用 SSR，避免本地开发时的 SSR 错误
+  // 生产环境（Vercel）会使用构建后的代码，不受影响
+  ssr: process.env.NODE_ENV === 'production' ? true : false,
+  
   modules: [],
 
   css: [
