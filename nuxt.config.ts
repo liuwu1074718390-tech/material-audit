@@ -60,7 +60,9 @@ export default defineNuxtConfig({
     optimizeDeps: {
       include: ['dayjs/esm'],
       // 排除 element-plus，使用按需导入
-      exclude: ['element-plus']
+      exclude: ['element-plus'],
+      // 减少预构建的依赖数量
+      force: false
     },
     ssr: {
       // 将 element-plus 设为 external，减少 SSR 构建负担
@@ -70,28 +72,43 @@ export default defineNuxtConfig({
     build: {
       // 减少内存使用
       chunkSizeWarningLimit: 2000,
-      // 增加构建超时时间
+      // 减少并发处理，降低内存峰值
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: false // 保留 console，减少压缩时间
+        }
+      },
       rollupOptions: {
+        // 减少输出文件数量
         output: {
-          // 手动代码分割，将 element-plus 单独打包
+          // 更激进的代码分割，减少单个 chunk 大小
           manualChunks: (id) => {
+            // Element Plus 单独打包
             if (id.includes('node_modules/element-plus')) {
               return 'element-plus'
             }
+            // Vue 相关单独打包
+            if (id.includes('node_modules/vue') || id.includes('node_modules/@vue')) {
+              return 'vue-vendor'
+            }
+            // Nuxt 相关单独打包
+            if (id.includes('node_modules/nuxt') || id.includes('node_modules/@nuxt')) {
+              return 'nuxt-vendor'
+            }
+            // 其他 node_modules
             if (id.includes('node_modules')) {
               return 'vendor'
             }
-          }
+          },
+          // 减少 chunk 大小限制
+          chunkFileNames: 'js/[name]-[hash].js',
+          entryFileNames: 'js/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash].[ext]'
         },
-        // 增加外部依赖，减少构建负担
-        external: (id) => {
-          // 在客户端构建时，element-plus 不应该被 external
-          // 这里主要是为了优化 SSR 构建
-          return false
-        }
-      },
-      // 增加构建超时（30分钟）
-      // 注意：这个选项可能不被 Vite 支持，但我们可以通过其他方式处理
+        // 减少并行处理
+        maxParallelFileOps: 2
+      }
     }
   }
 })
