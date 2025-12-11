@@ -58,7 +58,7 @@ export default defineNuxtConfig({
       }
     },
     optimizeDeps: {
-      include: ['dayjs/esm']
+      include: ['dayjs/esm'],
       // 排除 element-plus，使用按需导入
       exclude: ['element-plus']
     },
