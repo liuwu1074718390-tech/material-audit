@@ -147,6 +147,7 @@
 
 <script setup lang="ts">
 import type { AuditResultData, FilterConditions } from '~/types'
+import { ElMessage } from 'element-plus'
 // 动态导入 xlsx，避免服务器端打包问题
 let XLSX: any = null
 const getXLSX = async () => {
