@@ -2,9 +2,7 @@
 export default defineNuxtConfig({
   devtools: { enabled: false },
   
-  modules: [
-    '@element-plus/nuxt'
-  ],
+  modules: [],
 
   css: [
     '~/assets/styles/main.scss',
@@ -36,6 +34,8 @@ export default defineNuxtConfig({
     // - Netlify: 需要 preset: 'netlify'（在 Netlify 部署时会自动设置）
     // 可以通过环境变量控制：NETLIFY=1 时使用 netlify preset
     preset: process.env.NETLIFY ? 'netlify' : undefined,
+    // Nitro 兼容性日期
+    compatibilityDate: '2025-12-11',
     // 服务端路由配置
     routeRules: {
       // API 路由允许 CORS
@@ -64,8 +64,6 @@ export default defineNuxtConfig({
       // 确保 xlsx 在服务器端也被正确处理（虽然不会用到）
       noExternal: ['xlsx', 'dayjs', 'element-plus']
     }
-  },
-
-  compatibilityDate: '2025-12-10'
+  }
 })
 
