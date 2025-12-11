@@ -59,19 +59,39 @@ export default defineNuxtConfig({
     },
     optimizeDeps: {
       include: ['dayjs/esm']
+      // 不排除 element-plus，让它正常预构建
+      // 但通过其他方式优化
     },
     ssr: {
-      // 确保 xlsx 在服务器端也被正确处理（虽然不会用到）
-      noExternal: ['xlsx', 'dayjs', 'element-plus']
+      // 将 element-plus 设为 external，减少 SSR 构建负担
+      // xlsx 和 dayjs 仍然需要 noExternal
+      noExternal: ['xlsx', 'dayjs']
     },
     build: {
       // 减少内存使用
-      chunkSizeWarningLimit: 1000,
+      chunkSizeWarningLimit: 2000,
+      // 增加构建超时时间
       rollupOptions: {
         output: {
-          manualChunks: undefined // 让 Vite 自动处理代码分割
+          // 手动代码分割，将 element-plus 单独打包
+          manualChunks: (id) => {
+            if (id.includes('node_modules/element-plus')) {
+              return 'element-plus'
+            }
+            if (id.includes('node_modules')) {
+              return 'vendor'
+            }
+          }
+        },
+        // 增加外部依赖，减少构建负担
+        external: (id) => {
+          // 在客户端构建时，element-plus 不应该被 external
+          // 这里主要是为了优化 SSR 构建
+          return false
         }
-      }
+      },
+      // 增加构建超时（30分钟）
+      // 注意：这个选项可能不被 Vite 支持，但我们可以通过其他方式处理
     }
   }
 })

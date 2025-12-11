@@ -206,7 +206,17 @@ async function main() {
     })
     
     console.log('✅ Config loaded, starting Nuxt build...')
-    await buildNuxt(nuxt)
+    console.log('⏱️  This may take several minutes, especially for Element Plus...')
+    
+    // 设置构建超时（30分钟）
+    const buildPromise = buildNuxt(nuxt)
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Build timeout after 30 minutes'))
+      }, 30 * 60 * 1000)
+    })
+    
+    await Promise.race([buildPromise, timeoutPromise])
     
     // 检查输出
     if (existsSync(outputDir) || existsSync(serverDir) || existsSync(nitroJsonPath)) {
