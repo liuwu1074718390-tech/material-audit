@@ -99,7 +99,7 @@
 
 <script setup lang="ts">
 import { Upload, Refresh } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import AuditResultTable from '~/components/AuditResultTable.vue'
 import UploadDialog from '~/components/UploadDialog.vue'
 import type { AuditResultData } from '~/types'
