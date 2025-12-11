@@ -5,16 +5,15 @@
 </template>
 
 <script setup lang="ts">
-// 动态导入语言包，避免 SSR 问题
-let zhCn: any = null
-if (process.client) {
-  import('element-plus/es/locale/lang/zh-cn').then(module => {
-    zhCn = module.default
-  })
-} else {
-  // 服务端使用默认配置
-  zhCn = {}
-}
+// 只在客户端导入语言包，避免 SSR 问题
+const locale = ref({})
+
+onMounted(async () => {
+  if (process.client) {
+    const zhCnModule = await import('element-plus/es/locale/lang/zh-cn')
+    locale.value = zhCnModule.default
+  }
+})
 
 // 全局配置
 useHead({
@@ -25,8 +24,5 @@ useHead({
     { name: 'description', content: '材价审计管理系统' }
   ]
 })
-
-// 配置Element Plus使用中文
-const locale = zhCn || {}
 </script>
 
