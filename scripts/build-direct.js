@@ -59,14 +59,22 @@ async function runBuild(command, description) {
   console.log(`\n🔨 ${description}...`)
   console.log(`📝 Command: ${command}`)
   
+  let stdout = ''
+  let stderr = ''
+  
   try {
-    // 使用 inherit 来实时显示输出，错误信息会直接显示在控制台
-    execSync(command, {
+    // 使用 pipe 捕获输出，这样即使 banner 报错也能检查输出
+    const result = execSync(command, {
       cwd: rootDir,
       env: { ...process.env },
       encoding: 'utf8',
-      stdio: 'inherit'
+      stdio: ['inherit', 'pipe', 'pipe']
     })
+    
+    stdout = result.toString() || ''
+    if (stdout) {
+      console.log(stdout)
+    }
     
     // 检查构建输出
     if (existsSync(outputDir) || existsSync(serverDir) || existsSync(nitroJsonPath)) {
@@ -90,9 +98,23 @@ async function runBuild(command, description) {
       return false
     }
   } catch (buildError) {
-    // 检查是否是 banner 错误（即使 banner 报错，构建可能仍然成功）
-    const isBannerError = buildError.message?.includes('Cannot read properties of null') ||
-                          buildError.message?.includes("reading 'name'")
+    // 捕获 stdout 和 stderr
+    stdout = buildError.stdout?.toString() || ''
+    stderr = buildError.stderr?.toString() || ''
+    
+    // 显示输出（可能包含有用的信息）
+    if (stdout) {
+      console.log('📤 STDOUT:')
+      console.log(stdout)
+    }
+    if (stderr) {
+      console.error('📤 STDERR:')
+      console.error(stderr)
+    }
+    
+    // 检查是否是 banner 错误
+    const isBannerError = (stdout + stderr + buildError.message).includes('Cannot read properties of null') ||
+                          (stdout + stderr + buildError.message).includes("reading 'name'")
     
     // 即使命令失败，也检查是否有输出生成
     if (existsSync(outputDir) || existsSync(serverDir) || existsSync(nitroJsonPath)) {
@@ -115,15 +137,17 @@ async function runBuild(command, description) {
       return true
     }
     
-    // 如果是 banner 错误，尝试继续（可能构建仍在进行）
+    // 如果是 banner 错误，等待一段时间后再次检查（构建可能在后台进行）
     if (isBannerError) {
-      console.log('\n⚠️ Banner error detected, but this might not prevent the build')
-      console.log('💡 Waiting a moment and checking for output...')
-      // 等待 2 秒后再次检查
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      if (existsSync(outputDir) || existsSync(serverDir) || existsSync(nitroJsonPath)) {
-        console.log('✅ Build output found after banner error!')
-        return true
+      console.log('\n⚠️ Banner error detected')
+      console.log('💡 Banner error usually happens before build starts, but checking anyway...')
+      // 等待 5 秒后再次检查
+      for (let i = 0; i < 5; i++) {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        if (existsSync(outputDir) || existsSync(serverDir) || existsSync(nitroJsonPath)) {
+          console.log('✅ Build output found after banner error!')
+          return true
+        }
       }
     }
     
@@ -140,11 +164,7 @@ async function runBuild(command, description) {
     if (buildError.signal) {
       console.error('Signal:', buildError.signal)
     }
-    // 注意：使用 stdio: 'inherit' 时，错误信息已经显示在控制台上了
-    // 这里只输出额外的诊断信息
     console.error('---')
-    console.error('💡 Note: The full error output should be visible above.')
-    console.error('   Please scroll up to see the complete error message.')
     
     return false
   }
@@ -166,6 +186,37 @@ async function main() {
     } catch (e) {
       console.warn('⚠️ nuxt prepare failed, but continuing...')
     }
+  }
+
+  // 尝试直接使用 Nitro API 构建（绕过 Nuxt CLI banner）
+  console.log('\n🔧 Attempting direct Nitro build (bypassing Nuxt CLI)...')
+  try {
+    const { build } = await import('nitropack')
+    const { loadNuxtConfig } = await import('@nuxt/config')
+    
+    const config = await loadNuxtConfig({ rootDir })
+    console.log('✅ Config loaded, starting Nitro build...')
+    await build(config.nitro || {})
+    
+    // 检查输出
+    if (existsSync(outputDir) || existsSync(serverDir) || existsSync(nitroJsonPath)) {
+      console.log('✅ Direct Nitro build succeeded!')
+      if (existsSync(nitroJsonPath)) {
+        console.log('✅ nitro.json found at:', nitroJsonPath)
+      }
+      if (existsSync(outputDir)) {
+        console.log('✅ Public output found at:', outputDir)
+      }
+      if (existsSync(serverDir)) {
+        console.log('✅ Server output found at:', serverDir)
+      }
+      process.exit(0)
+    } else {
+      console.log('⚠️ Direct Nitro build completed but no output found')
+    }
+  } catch (nitroError) {
+    console.log('⚠️ Direct Nitro build failed:', nitroError.message)
+    console.log('💡 Falling back to CLI methods...')
   }
 
   // 尝试多种构建方法
