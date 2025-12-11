@@ -98,6 +98,11 @@
 </template>
 
 <script setup lang="ts">
+// 禁用 SSR，只在客户端渲染，避免 SSR 错误
+definePageMeta({
+  ssr: false
+})
+
 import { Upload, Refresh } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import AuditResultTable from '~/components/AuditResultTable.vue'
