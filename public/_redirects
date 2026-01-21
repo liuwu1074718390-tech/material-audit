@@ -1,0 +1,52 @@
+# Nuxt 3 SPA fallback 重定向规则
+# 所有路由都重定向到 index.html，由客户端路由处理
+
+# API 路由保持不变（由服务器处理）
+/api/* 200
+
+# 静态资源
+/_nuxt/* 200
+/assets/* 200
+/favicon.ico 200
+
+# 所有其他路由重定向到 index.html（SPA fallback）
+/*    /index.html   200
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

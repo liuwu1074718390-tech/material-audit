@@ -1,0 +1,33 @@
+{
+  "name": "material-price-audit",
+  "version": "1.0.0",
+  "description": "材价审计管理系统",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_OPTIONS=--max-old-space-size=4096 nuxt dev",
+    "build": "nuxt build",
+    "build:netlify": "node scripts/build-direct.js",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "NODE_ENV=production nuxt prepare || true"
+  },
+  "dependencies": {
+    "axios": "^1.6.5",
+    "dayjs": "^1.11.19",
+    "element-plus": "^2.8.4",
+    "mysql2": "^3.15.3",
+    "nuxt": "^3.14.159",
+    "vue": "^3.4.15",
+    "vue-router": "^4.2.5",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "sass": "^1.70.0"
+  },
+  "engines": {
+    "node": ">=20.19.0",
+    "npm": ">=9.0.0"
+  }
+}
